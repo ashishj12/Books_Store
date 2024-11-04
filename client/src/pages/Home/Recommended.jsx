@@ -1,28 +1,15 @@
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 import { Swiper, SwiperSlide } from "swiper/react";
 import { Pagination, Navigation } from "swiper/modules";
 import "swiper/css";
 import "swiper/css/pagination";
 import "swiper/css/navigation";
 import BookCard from "../books/BookCard";
+import { useFetchAllBooksQuery } from "../../redux/features/books/booksApi";
 
 const Recommended = () => {
-  const [books, setBooks] = useState([]);
+  const { data: books = [] } = useFetchAllBooksQuery();
   const [error, setError] = useState(null);
-
-  useEffect(() => {
-    fetch("books.json")
-      .then((res) => {
-        if (!res.ok) throw new Error("Network response was not ok");
-        return res.json();
-      })
-      .then((data) => setBooks(data))
-      .catch((error) => {
-        console.error("Error fetching books:", error);
-        setError("Could not load books. Please try again later.");
-      });
-  }, []);
-
   // Slicing the books array before mapping
   const slicedBooks = books.slice(8, 18);
 

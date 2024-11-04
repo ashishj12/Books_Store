@@ -1,10 +1,11 @@
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 import BookCard from "../books/BookCard";
 import { Swiper, SwiperSlide } from "swiper/react";
 import { Pagination, Navigation } from "swiper/modules";
 import "swiper/css";
 import "swiper/css/pagination";
 import "swiper/css/navigation";
+import { useFetchAllBooksQuery } from "../../redux/features/books/booksApi";
 
 const categories = [
   "Choose a genre",
@@ -15,30 +16,14 @@ const categories = [
 ];
 
 const TopSellers = () => {
-  const [books, setBooks] = useState([]);
-  const [selectedCategory, setSelectedCategory] = useState("Choose a genre");
-  const [error, setError] = useState(null);
+  const { data: books = [], error } = useFetchAllBooksQuery();
+  const [selectedCategory, setSelectedCategory] = useState(categories[0]);
 
-  useEffect(() => {
-    fetch("books.json")
-      .then((res) => {
-        if (!res.ok) throw new Error("Network response was not ok");
-        return res.json();
-      })
-      .then((data) => setBooks(data))
-      .catch((error) => {
-        console.error("Error fetching books:", error);
-        setError("Could not load books. Please try again later.");
-      });
-  }, []);
-
-  const filteredBooks =
-    selectedCategory === "Choose a genre"
-      ? books
-      : books.filter(
-          (book) =>
-            book.category.toLowerCase() === selectedCategory.toLowerCase()
-        );
+  const filteredBooks = selectedCategory === "Choose a genre"
+    ? books
+    : books.filter(book =>
+        book.category.toLowerCase() === selectedCategory.toLowerCase()
+      );
 
   const handleCategoryChange = (event) => {
     setSelectedCategory(event.target.value);
@@ -54,6 +39,7 @@ const TopSellers = () => {
           name="category"
           id="category"
           className="p-2 border rounded"
+          value={selectedCategory}
         >
           {categories.map((category, index) => (
             <option key={index} value={category}>
@@ -63,7 +49,7 @@ const TopSellers = () => {
         </select>
       </div>
 
-      {error && <div className="text-red-500 mb-4">{error}</div>}
+      {error && <div className="text-red-500 mb-4">{error.message || "An error occurred."}</div>}
 
       {filteredBooks.length > 0 ? (
         <Swiper
