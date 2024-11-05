@@ -1,18 +1,40 @@
 import React, { useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { useForm } from "react-hook-form";
 import { FaGoogle } from "react-icons/fa";
+import { useAuth } from "../context/AuthContext";
 
 const Register = () => {
   const [message, setMessage] = useState("");
+  const { registerUser, signInWithGoogle } = useAuth();
+  const navigate = useNavigate();
   const {
     register,
     handleSubmit,
-    watch,
     formState: { errors },
   } = useForm();
-  const onSubmit = (data) => console.log(data);
-  const handleGoogleLogIn = () => {};
+
+  const onSubmit = async (data) => {
+    try {
+      await registerUser(data.email, data.password);
+      alert("User Registered Successfully");
+      navigate("/");
+    } catch (error) {
+      setMessage("Please provide a valid email and password");
+    }
+  };
+
+  const handleGoogleLogIn = async () => {
+    try {
+      await signInWithGoogle();
+      alert("Login Successful!");
+      navigate("/");
+    } catch (error) {
+      alert("Please provide a valid email and password");
+      console.error(error);
+    }
+  };
+
   return (
     <div className="h-[calc(100vh - 120px)] flex justify-center items-center">
       <div className="w-full max-w-sm mx-auto bg-white shadow-md rounded px-8 pt-6 pb-8 mb-4">
@@ -55,7 +77,7 @@ const Register = () => {
             <p className="text-red-500 text-xs italic mb-3">{message}</p>
           )}
           <div>
-            <button className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-8 rounded focues:outline-none">
+            <button className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-8 rounded focus:outline-none">
               Register
             </button>
           </div>
@@ -67,13 +89,13 @@ const Register = () => {
           </Link>
         </p>
 
-        {/* Google Login */}
         <div className="mt-4">
           <button
             onClick={handleGoogleLogIn}
             className="w-full flex flex-wrap gap-1 items-center justify-center bg-secondary hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none"
           >
             <FaGoogle className="mr-2" />
+            Sign in with Google
           </button>
         </div>
         <p className="mt-5 text-center text-gray-500 text-xs">
