@@ -2,13 +2,16 @@ import React, { useState } from "react";
 import { useSelector } from "react-redux";
 import { useForm } from "react-hook-form";
 import { useAuth } from "../../context/AuthContext";
-import { Link } from "react-router-dom";
+import { useCreateOrderMutation } from "../../redux/orders/ordersApi";
+import Swal from "sweetalert2";
+import { Link, useNavigate } from "react-router-dom";
 
 const CheckOut = () => {
   const cartItems = useSelector((state) => state.cart.cartItems);
   const totalPrice = cartItems
     .reduce((acc, item) => acc + item.newPrice, 0)
     .toFixed(2);
+
   const { currentUser } = useAuth();
   const [message, setMessage] = useState("");
   const {
@@ -16,9 +19,11 @@ const CheckOut = () => {
     handleSubmit,
     formState: { errors },
   } = useForm();
+  const [createOrder, { isLoading, error }] = useCreateOrderMutation();
+  const navigate = useNavigate();
   const [isChecked, setIsChecked] = useState(false);
 
-  const onSubmit = (data) => {
+  const onSubmit = async (data) => {
     const newOrder = {
       name: data.name,
       email: currentUser?.email,
@@ -29,12 +34,35 @@ const CheckOut = () => {
         zipcode: data.zipcode,
       },
       phone: data.phone,
-      productsId: cartItems.map((item) => item?._id),
+      productsId: cartItems.map((item) => item._id),
       totalPrice: totalPrice,
     };
-    console.log(newOrder);
+
+    try {
+      await createOrder(newOrder);
+      Swal.fire({
+        title: "Confirmed Order",
+        text: "Your Order Placed Successfully!",
+        icon: "success",
+        showCancelButton: true,
+        confirmButtonColor: "#3085d6",
+        cancelButtonColor: "#d33",
+        confirmButtonText: "Yes, It's Okay",
+      });
+      navigate("/orders");
+    } catch (error) {
+      console.error("Error placing the order", error);
+      Swal.fire({
+        title: "Order Error",
+        text: error?.data?.message || "Failed to place an order",
+        icon: "error",
+      });
+    }
+
     setMessage("Order placed successfully!");
   };
+
+  if (isLoading) return <div>Loading...</div>;
 
   return (
     <section>
@@ -69,9 +97,11 @@ const CheckOut = () => {
                         name="name"
                         id="name"
                         className="h-10 border mt-1 rounded px-4 w-full bg-gray-50"
-                        {...register("name", { required: true })}
+                        {...register("name", { required: "Name is required" })}
                       />
-                      {errors.name && <p className="text-red-500">Name is required</p>}
+                      {errors.name && (
+                        <p className="text-red-500">{errors.name.message}</p>
+                      )}
                     </div>
 
                     {/* Email */}
@@ -97,9 +127,13 @@ const CheckOut = () => {
                         id="phone"
                         className="h-10 border mt-1 rounded px-4 w-full bg-gray-50"
                         placeholder="+123 456 7890"
-                        {...register("phone", { required: true })}
+                        {...register("phone", {
+                          required: "Phone is required",
+                        })}
                       />
-                      {errors.phone && <p className="text-red-500">Phone is required</p>}
+                      {errors.phone && (
+                        <p className="text-red-500">{errors.phone.message}</p>
+                      )}
                     </div>
 
                     {/* Address */}
@@ -110,7 +144,9 @@ const CheckOut = () => {
                         name="address"
                         id="address"
                         className="h-10 border mt-1 rounded px-4 w-full bg-gray-50"
-                        {...register("address", { required: true })}
+                        {...register("address", {
+                          required: "Address is required",
+                        })}
                       />
                     </div>
 
@@ -122,7 +158,7 @@ const CheckOut = () => {
                         name="city"
                         id="city"
                         className="h-10 border mt-1 rounded px-4 w-full bg-gray-50"
-                        {...register("city", { required: true })}
+                        {...register("city", { required: "City is required" })}
                       />
                     </div>
 
@@ -134,7 +170,9 @@ const CheckOut = () => {
                         name="country"
                         id="country"
                         className="h-10 border mt-1 rounded px-4 w-full bg-gray-50"
-                        {...register("country", { required: true })}
+                        {...register("country", {
+                          required: "Country is required",
+                        })}
                       />
                     </div>
 
@@ -146,7 +184,9 @@ const CheckOut = () => {
                         name="state"
                         id="state"
                         className="h-10 border mt-1 rounded px-4 w-full bg-gray-50"
-                        {...register("state", { required: true })}
+                        {...register("state", {
+                          required: "State is required",
+                        })}
                       />
                     </div>
 
@@ -158,7 +198,9 @@ const CheckOut = () => {
                         name="zipcode"
                         id="zipcode"
                         className="h-10 border mt-1 rounded px-4 w-full bg-gray-50"
-                        {...register("zipcode", { required: true })}
+                        {...register("zipcode", {
+                          required: "Zipcode is required",
+                        })}
                       />
                     </div>
 
@@ -167,37 +209,35 @@ const CheckOut = () => {
                       <div className="inline-flex items-center">
                         <input
                           type="checkbox"
-                          name="billing_same"
-                          id="billing_same"
-                          className="form-checkbox"
-                          onChange={(e) => setIsChecked(e.target.checked)}
+                          name="terms"
+                          id="terms"
+                          checked={isChecked}
+                          onChange={() => setIsChecked(!isChecked)}
                         />
-                        <label htmlFor="billing_same" className="ml-2 ">
+                        <label
+                          htmlFor="terms"
+                          className="ml-2 text-sm text-gray-600"
+                        >
                           I agree to the{" "}
-                          <Link className="underline text-blue-600">
+                          <Link to="/terms-and-conditions">
                             Terms & Conditions
-                          </Link>{" "}
-                          and{" "}
-                          <Link className="underline text-blue-600">
-                            Shopping Policy.
                           </Link>
                         </label>
                       </div>
                     </div>
 
-                    {/* Submit Button */}
-                    <div className="md:col-span-5 text-right">
+                    <div className="md:col-span-5 mt-3">
                       <button
+                        type="submit"
+                        className="w-full bg-indigo-600 hover:bg-indigo-700 text-white py-2 rounded-md"
                         disabled={!isChecked}
-                        className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
                       >
-                        Place an Order
+                        Place Order
                       </button>
                     </div>
                   </div>
                 </div>
               </form>
-              {message && <p className="text-green-500">{message}</p>}
             </div>
           </div>
         </div>
