@@ -24,43 +24,44 @@ const CheckOut = () => {
   const [isChecked, setIsChecked] = useState(false);
 
   const onSubmit = async (data) => {
-    const newOrder = {
-      name: data.name,
-      email: currentUser?.email,
-      address: {
-        city: data.city,
-        country: data.country,
-        state: data.state,
-        zipcode: data.zipcode,
-      },
-      phone: data.phone,
-      productsId: cartItems.map((item) => item._id),
-      totalPrice: totalPrice,
-    };
-
     try {
-      await createOrder(newOrder);
-      Swal.fire({
-        title: "Confirmed Order",
-        text: "Your Order Placed Successfully!",
-        icon: "success",
-        showCancelButton: true,
-        confirmButtonColor: "#3085d6",
-        cancelButtonColor: "#d33",
-        confirmButtonText: "Yes, It's Okay",
-      });
-      navigate("/orders");
+      const newOrder = {
+        name: data.name,
+        email: currentUser?.email,
+        address: {
+          city: data.city,
+          country: data.country,
+          state: data.state,
+          zipcode: data.zipcode,
+        },
+        phone: data.phone,
+        productsId: cartItems.map((item) => item._id),
+        totalPrice: parseFloat(totalPrice),
+      };
+  
+      const result = await createOrder(newOrder).unwrap();
+      if (result) {
+        Swal.fire({
+          title: "Confirmed Order",
+          text: "Your Order Placed Successfully!",
+          icon: "success",
+          showCancelButton: true,
+          confirmButtonColor: "#3085d6",
+          cancelButtonColor: "#d33",
+          confirmButtonText: "Yes, It's Okay",
+        });
+        navigate("/orders");
+      }
     } catch (error) {
       console.error("Error placing the order", error);
       Swal.fire({
         title: "Order Error",
-        text: error?.data?.message || "Failed to place an order",
+        text: "Failed to place the order. Please try again.",
         icon: "error",
       });
     }
-
-    setMessage("Order placed successfully!");
   };
+  
 
   if (isLoading) return <div>Loading...</div>;
 

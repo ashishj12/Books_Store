@@ -30,7 +30,7 @@ mongoose
   });
 
 // Routes
-app.use("/api/books", bookRoutes); 
+app.use("/api", bookRoutes); 
 app.use("/api/orders", orderRoutes); 
 
 // Start the server
