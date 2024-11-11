@@ -4,6 +4,7 @@ const dotenv = require("dotenv");
 const cors = require("cors");
 const orderRoutes = require("./routes/order_routes");
 const bookRoutes = require("./routes/book_routes");
+const authRoutes = require("./routes/user_routes");
 
 dotenv.config();
 
@@ -15,8 +16,8 @@ app.use(express.json());
 
 app.use(
   cors({
-    origin: ["http://localhost:5173"], 
-    credentials: true, 
+    origin: ["http://localhost:5173"], // React front-end
+    credentials: true,
   })
 );
 
@@ -26,12 +27,13 @@ mongoose
   .then(() => console.log("Connected to MongoDB"))
   .catch((error) => {
     console.error("MongoDB connection error:", error.message);
-    process.exit(1); 
+    process.exit(1);
   });
 
 // Routes
-app.use("/api", bookRoutes); 
-app.use("/api/orders", orderRoutes); 
+app.use("/api", bookRoutes);
+app.use("/api/orders", orderRoutes);
+app.use("/api/auth", authRoutes); // For login route
 
 // Start the server
 app.listen(PORT, () => {
