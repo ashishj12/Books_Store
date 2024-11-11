@@ -5,7 +5,6 @@ const cors = require("cors");
 const orderRoutes = require("./routes/order_routes");
 const bookRoutes = require("./routes/book_routes");
 const authRoutes = require("./routes/user_routes");
-
 dotenv.config();
 
 const PORT = process.env.PORT || 5000;
@@ -16,7 +15,7 @@ app.use(express.json());
 
 app.use(
   cors({
-    origin: ["http://localhost:5173"], // React front-end
+    origin: ["http://localhost:5173"],
     credentials: true,
   })
 );
@@ -33,7 +32,7 @@ mongoose
 // Routes
 app.use("/api", bookRoutes);
 app.use("/api/orders", orderRoutes);
-app.use("/api/auth", authRoutes); // For login route
+app.use("/api/auth", authRoutes);
 
 // Start the server
 app.listen(PORT, () => {
