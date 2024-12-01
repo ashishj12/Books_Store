@@ -48,13 +48,13 @@ The Books Store is a web application that allows users to browse, purchase, and 
 1. Clone the repository: `git clone https://github.com/ashishj12/Books_Store.git`
 2. Navigate to the backend directory: `cd Books-Store/server`
 3. Install dependencies: `npm install`
-4. Create a `.env` file and configure the necessary environment variables (e.g., MongoDB connection string, JWT secret key)
+4. Create a `.env` file and configure the necessary environment variables (PORT,DB_URI,JWT_SECRET_KEY)
 5. Start the server: `npm start`
 
 ### Frontend
 1. Navigate to the frontend directory: `cd Books-Store/client`
 2. Install dependencies: `npm install`
-3. Create a `.env.local` file and configure the necessary environment variables (e.g., Firebase configuration)
+3. Create a `.env.local` file and configure the necessary environment variables (Firebase configuration)
 4. Start the development server: `npm run dev`
 
 ## Deployment
